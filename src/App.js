@@ -251,7 +251,7 @@ const COUNTRIES = [
           {name: 'Zimbabwe', code: 'ZW'} 
         ]
 
-
+{/*Component to call Public Holiday API from Working-Days RapidAPI*/}
 function PublicHolidayComponent(props) {
     const [country, setCountry] = useState("");
     const [holidays, setHolidays] = useState([]);
@@ -288,6 +288,7 @@ function PublicHolidayComponent(props) {
         
     }, [country]);
 
+    {/*Display error if public holiday API call fail*/}
     if(pubHolidayError.status){
         return (
             <h2 style={{
@@ -299,7 +300,7 @@ function PublicHolidayComponent(props) {
         )
     };
 
-
+    {/*Display result of country choice if available*/}
     return (
         <div className='centre'>
             <select className ='centre' onChange={(e) => {
@@ -318,11 +319,15 @@ function PublicHolidayComponent(props) {
     
 }
 
+
+{/*Component to call Current Weather API from OpenWeatherMap*/}
 function CurrentWeatherComponent(props) {
     const [temperature, setTemperature] = useState({});
     const [weather, setWeather] = useState({});
     const [temperatureError, setTemperatureError] = useState({status:false, message: ""});
     
+    {/*Get Coordinates for user's current location*/}
+    {/*And use it to call OpenWeatherMap API*/}
     function getCoordinates() {
         navigator.geolocation.getCurrentPosition((position) => {
             const {longitude, latitude} = position.coords;
@@ -351,6 +356,7 @@ function CurrentWeatherComponent(props) {
         })
     }
 
+    {/*Display error if Open Weather API call fail*/}
     if(temperatureError.status){
         return (
             <h2 style={{
@@ -362,6 +368,7 @@ function CurrentWeatherComponent(props) {
         )
     };
 
+    {/*Reflect it on the website*/}
     return (
         <div>
             <button onClick={getCoordinates}>Get Weather Data For Your Area</button>
@@ -376,12 +383,14 @@ function CurrentWeatherComponent(props) {
     
 }
 
+{/*Component to display and call Accommodation API from Booking RapidAPI*/}
 function AccomodationComponent(props) {
     const [arrivalDate, setArrivalDate] = useState("");
     const [departureDate, setDepartureDate] = useState("");
-    const [accomodation, setAccomodation] = useState([]);
-    const [accomodationError, showAccomodationError] = useState({status:false, message: ""});
+    const [accommodation, setAccommodation] = useState([]);
+    const [accommodationError, showAccommodationError] = useState({status:false, message: ""});
 
+    {/*function to obtain data from Accommodation API*/}
     function submitDateForm(e) {
         e.preventDefault();
         navigator.geolocation.getCurrentPosition((position) => {
@@ -411,15 +420,15 @@ function AccomodationComponent(props) {
             }
             axios.request(accomodationOptions).then((response) => {
                 console.log(response.data.result);
-                setAccomodation(response.data.result);
+                setAccommodation(response.data.result);
             }).catch((e) => {
-                showAccomodationError({status: true, message: "Information Unavailable."});
+                showAccommodationError({status: true, message: "Information Unavailable."});
             });
             
         })
     }
 
-    if(accomodationError.status){
+    if(accommodationError.status){
         return (
             <h2 style={{
                 display: 'flex',
@@ -432,7 +441,8 @@ function AccomodationComponent(props) {
 
     
     
-
+    {/*Display Form to ask for user input*/}
+    {/*Notable arrival and departure dates*/}
     return (
         <div>
             <form className='text' onSubmit={(e) => submitDateForm(e)}>
@@ -446,7 +456,7 @@ function AccomodationComponent(props) {
                 }}></input>
                 <button type='submit'>Submit</button>
             </form>
-            {accomodation.map((element, index) => {
+            {accommodation.map((element, index) => {
                     return <p className='centre' key={index}>{element.hotel_name}, Minimum Price: {element.min_total_price}</p>
                 })}
         </div>
@@ -479,7 +489,7 @@ function App() {
         {/*Current Weather API End*/}
         {/*Accomodation API Begin*/}
         <div>
-            <h2 className='centre'>Fill in data to find accomodation near you.</h2>
+            <h2 className='centre'>Fill in data to find accommodation near you.</h2>
             <p className='text'>Make sure to pick an arrival date that is today or onwards.</p>
             <p className='text'>Else, there will be no output for accomodation.</p>
             <AccomodationComponent />
