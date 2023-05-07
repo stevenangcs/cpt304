@@ -1,7 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
 import './App.css';
 
 //Array for country drop down menu selection
@@ -257,11 +256,13 @@ function PublicHolidayComponent(props) {
     const [holidays, setHolidays] = useState([]);
     const [pubHolidayError, setPubHolidayError] = useState({status:false, message: ""});
 
+    {/*UseEffect used to ensure the API is called only after user chooses*/}
+    {/*a specific country*/}
     useEffect(() => {
         if(country === "") {
             return;
         }
-
+        {/*Initialize Option and Parameters for API Call*/}
         const publicHolidayOptions = {
           method: 'GET',
           url: 'https://working-days.p.rapidapi.com/1.3/analyse',
@@ -279,6 +280,7 @@ function PublicHolidayComponent(props) {
           }
         };
 
+        {/*Request for API data*/}
         axios.request(publicHolidayOptions).then((response) => {
             setHolidays(response.data.public_holidays.list);
         }).catch((e) => {
@@ -302,6 +304,7 @@ function PublicHolidayComponent(props) {
 
     {/*Display result of country choice if available*/}
     return (
+        //Display dropdown menu choice containing all countries in the world
         <div className='centre'>
             <select className ='centre' onChange={(e) => {
                     setCountry(e.target.value.split(' - ')[1]);
@@ -310,6 +313,7 @@ function PublicHolidayComponent(props) {
                     return <option key={country.code}>{country.name} - {country.code}</option>
                 })}
             </select>
+            {/*Display all public holidays that country has*/}
             {holidays.map((holiday, index) => {
                 return <p className="text" key={index}>{holiday.date} - {holiday.description}</p>
             })}
@@ -329,7 +333,10 @@ function CurrentWeatherComponent(props) {
     {/*Get Coordinates for user's current location*/}
     {/*And use it to call OpenWeatherMap API*/}
     function getCoordinates() {
+        {/*Obtain live location (latitude and longitude) of user*/}
         navigator.geolocation.getCurrentPosition((position) => {
+
+            {/*Initialize Option and Parameters for API Call*/}
             const {longitude, latitude} = position.coords;
             const appid= '2ee824bc7dbae6214abbc9a219b864b4';
             const units= 'metric';
@@ -343,16 +350,13 @@ function CurrentWeatherComponent(props) {
                   units: 'metric'
                 }
               };
+            {/*Request for API data*/}
             axios.request(currentWeatherOptions).then((response) => {
                 setTemperature(response.data["main"]);
                 setWeather(response.data.weather[0]);
             }).catch((e) => {
                 setTemperatureError({status: true, message: "Information Unavailable."});
             });
-
-            console.log(latitude);
-            console.log(longitude);
-            
         })
     }
 
@@ -368,9 +372,11 @@ function CurrentWeatherComponent(props) {
         )
     };
 
-    {/*Reflect it on the website*/}
+    {/*Display component on the website*/}
     return (
+        //Show list of information obtained from successful API call.
         <div>
+            {/*The API data is shown only after clicking the button*/}
             <button onClick={getCoordinates}>Get Weather Data For Your Area</button>
             <p className='text'>Current Weather Description: {weather.main}, {weather.description}</p>
             <p className='text'>Current Tempature: {temperature.temp}°C</p>
@@ -392,11 +398,13 @@ function AccomodationComponent(props) {
 
     {/*function to obtain data from Accommodation API*/}
     function submitDateForm(e) {
+        {/*e.preventDefault to saave user's date input'*/}
         e.preventDefault();
+        {/*Obtain live location (latitude and longitude) of user*/}
         navigator.geolocation.getCurrentPosition((position) => {
+
+            {/*Obtain live location (latitude and longitude) of user*/}
             const {longitude, latitude} = position.coords;
-            console.log(arrivalDate);
-            console.log(departureDate);
             const accomodationOptions = {
             method: 'GET',
             url: 'https://apidojo-booking-v1.p.rapidapi.com/properties/list',
@@ -418,6 +426,7 @@ function AccomodationComponent(props) {
                 'X-RapidAPI-Host': 'apidojo-booking-v1.p.rapidapi.com'
             }
             }
+            {/*Request for API data*/}
             axios.request(accomodationOptions).then((response) => {
                 console.log(response.data.result);
                 setAccommodation(response.data.result);
@@ -428,6 +437,7 @@ function AccomodationComponent(props) {
         })
     }
 
+    {/*Display error if accommodation API call fail*/}
     if(accommodationError.status){
         return (
             <h2 style={{
@@ -442,20 +452,24 @@ function AccomodationComponent(props) {
     
     
     {/*Display Form to ask for user input*/}
-    {/*Notable arrival and departure dates*/}
+    {/*Notable data arearrival and departure dates*/}
     return (
+        //Display 2 date field inputs for user to fill
         <div>
             <form className='text' onSubmit={(e) => submitDateForm(e)}>
                 <label htmlFor="arrival">Arrival Date:</label>
+                {/*set ArrivalDate state to user input*/}
                 <input type="date" id="arrival" name="arrival" onChange={(e) => {
                     setArrivalDate(e.target.value);
                 }}></input>
                 <label htmlFor="departure">Departure Date:</label>
+                {/*set DepartureDate state to user input*/}
                 <input type="date" id="departure" name="departure" onChange={(e) => {
                     setDepartureDate(e.target.value);
                 }}></input>
                 <button type='submit'>Submit</button>
             </form>
+            {/*Display successful API call*/}
             {accommodation.map((element, index) => {
                     return <p className='centre' key={index}>{element.hotel_name}, Minimum Price: {element.min_total_price}</p>
                 })}
