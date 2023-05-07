@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import './App.css';
 
+//Array for country drop down menu selection
 const COUNTRIES = [ 
           {name: 'Afghanistan', code: 'AF'}, 
           {name: 'Åland Islands', code: 'AX'}, 
@@ -251,16 +252,17 @@ const COUNTRIES = [
         ]
 
 
-function ComponentReact(props) {
+function PublicHolidayComponent(props) {
     const [country, setCountry] = useState("");
     const [holidays, setHolidays] = useState([]);
+    const [pubHolidayError, setPubHolidayError] = useState({status:false, message: ""});
 
     useEffect(() => {
         if(country === "") {
             return;
         }
 
-        const options = {
+        const publicHolidayOptions = {
           method: 'GET',
           url: 'https://working-days.p.rapidapi.com/1.3/analyse',
           params: {
@@ -277,28 +279,182 @@ function ComponentReact(props) {
           }
         };
 
-        axios.request(options).then((response) => {
+        axios.request(publicHolidayOptions).then((response) => {
             setHolidays(response.data.public_holidays.list);
         }).catch((e) => {
-            setHolidays([]);
+            setPubHolidayError({status: true, message: "Information Unavailable."});
         });
+
+        
     }, [country]);
 
+    if(pubHolidayError.status){
+        return (
+            <h2 style={{
+                display: 'flex',
+                justifyContent: 'center',
+                height: '100vh',
+              }}>Public Data Unavailable for Selected Country. Please refresh to choose another country.</h2>
+         
+        )
+    };
+
+
     return (
-        <div className={props.exists ? "shown" : "hidden"}>
-            <select onChange={(e) => {
-                    setCountry(e.target.value.split('-')[1]);
+        <div className='centre'>
+            <select className ='centre' onChange={(e) => {
+                    setCountry(e.target.value.split(' - ')[1]);
                 }}>
                 {COUNTRIES.map((country) => {
-                    return <option key={country.code}>{country.name}-{country.code}</option>
+                    return <option key={country.code}>{country.name} - {country.code}</option>
                 })}
             </select>
             {holidays.map((holiday, index) => {
-                return <h1 key={index}>{holiday.description}</h1>
+                return <h2 className="headliner" key={index}>{holiday.date} - {holiday.description}</h2>
             })}
         </div>
     );
+
+    
 }
+
+function CurrentWeatherComponent(props) {
+    const [temperature, setTemperature] = useState({});
+    const [weather, setWeather] = useState({});
+    const [temperatureError, setTemperatureError] = useState({status:false, message: ""});
+    
+    function getCoordinates() {
+        navigator.geolocation.getCurrentPosition((position) => {
+            const {longitude, latitude} = position.coords;
+            const appid= '2ee824bc7dbae6214abbc9a219b864b4';
+            const units= 'metric';
+            const currentWeatherOptions = {
+                method: 'GET',
+                url: `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${appid}&units=${units}`,
+                params: {
+                  lat: latitude,
+                  lon: longitude,
+                  appid: '2ee824bc7dbae6214abbc9a219b864b4',
+                  units: 'metric'
+                }
+              };
+            axios.request(currentWeatherOptions).then((response) => {
+                setTemperature(response.data["main"]);
+                setWeather(response.data.weather[0]);
+            }).catch((e) => {
+                setTemperatureError({status: true, message: "Information Unavailable."});
+            });
+
+            console.log(latitude);
+            console.log(longitude);
+            
+        })
+    }
+
+    if(temperatureError.status){
+        return (
+            <h2 style={{
+                display: 'flex',
+                justifyContent: 'center',
+                height: '100vh'
+              }}>Weather Data Unavailable for Your Area. Please try again later.</h2>
+         
+        )
+    };
+
+    return (
+        <div>
+            <button onClick={getCoordinates}>Get Weather Data For Your Area</button>
+            <p>Current Weather Description: {weather.main}, {weather.description}</p>
+            <p>Current Tempature: {temperature.temp}°C</p>
+            <p>It feels like: {temperature.feels_like}°C</p>
+            <p>Minimum Temperature: {temperature.temp_min}°C</p>
+            <p>Maximum Temperature: {temperature.temp_max}°C</p>
+        </div>
+    );
+
+    
+}
+
+function AccomodationComponent(props) {
+    const [arrivalDate, setArrivalDate] = useState("");
+    const [departureDate, setDepartureDate] = useState("");
+    const [accomodation, setAccomodation] = useState([]);
+    const [accomodationError, showAccomodationError] = useState({status:false, message: ""});
+
+    function submitDateForm(e) {
+        e.preventDefault();
+        navigator.geolocation.getCurrentPosition((position) => {
+            const {longitude, latitude} = position.coords;
+            console.log(arrivalDate);
+            console.log(departureDate);
+            const accomodationOptions = {
+            method: 'GET',
+            url: 'https://apidojo-booking-v1.p.rapidapi.com/properties/list',
+            params: {
+                offset: '0',
+                arrival_date: arrivalDate,
+                departure_date: departureDate,
+                guest_qty: '1',
+                dest_ids: '0',
+                room_qty: '1',
+                search_type: 'latlong',
+                search_id: 'none',
+                latitude: latitude,
+                longitude: longitude,
+                languagecode: 'en-us'
+            },
+            headers: {
+                'X-RapidAPI-Key': 'a28c877ab2msh806b3128f2a283bp1871b9jsn40e6a3841153',
+                'X-RapidAPI-Host': 'apidojo-booking-v1.p.rapidapi.com'
+            }
+            }
+            axios.request(accomodationOptions).then((response) => {
+                console.log(response.data.result);
+                setAccomodation(response.data.result);
+            }).catch((e) => {
+                showAccomodationError({status: true, message: "Information Unavailable."});
+            });
+            
+        })
+    }
+
+    if(accomodationError.status){
+        return (
+            <h2 style={{
+                display: 'flex',
+                justifyContent: 'center',
+                height: '100vh'
+              }}>Weather Data Unavailable for Your Area. Please try again later.</h2>
+         
+        )
+    };
+
+    
+    
+
+    return (
+        <div>
+            <form className='centre' onSubmit={(e) => submitDateForm(e)}>
+                <label htmlFor="arrival">Arrival Date:</label>
+                <input type="date" id="arrival" name="arrival" onChange={(e) => {
+                    setArrivalDate(e.target.value);
+                }}></input>
+                <label htmlFor="departure">Departure Date:</label>
+                <input type="date" id="departure" name="departure" onChange={(e) => {
+                    setDepartureDate(e.target.value);
+                }}></input>
+                <button type='submit'>Submit</button>
+            </form>
+            {accomodation.map((element, index) => {
+                    return <p className='centre' key={index}>{element.hotel_name}, Minimum Price: {element.min_total_price}</p>
+                })}
+        </div>
+    );
+
+    
+}
+
 
 /*
  * React Component
@@ -306,12 +462,37 @@ function ComponentReact(props) {
  *  Class that extends React.Component
  *  Function that is in camelcase and capitalized
  */
+
+//Start of UI
 function App() {
   return (
       <div>
-          <ComponentReact title="my title" subtitle="subtitle" exists />
+        <div>
+            <h1 className='title'>View Public Holiday, Weather, and Accomodation Details in your selected country!</h1>
+        </div>
+        {/*Current Weather API Begin*/}
+        <div className='centre'>
+            <h2 className='centre'>Click Me To Find My Current Location and Details!</h2>
+            <CurrentWeatherComponent />
+        </div>
+        {/*Current Weather API End*/}
+        {/*Accomodation API Begin*/}
+        <div>
+            <h2 className='centre'>Fill In Data To Find Accomodation Near You.</h2>
+            <h2 className='centre'>Make sure to pick an arrival date that is today or onwards.</h2>
+            <h2 className='centre'>Else, there will be no output for accomodation.</h2>
+            <AccomodationComponent />
+        </div>
+        {/*Accomodation API End*/}
+        {/*Country API Display Begin*/}
+        <div>
+            <h2 className='centre'>Select Country to view list of public holidays</h2>
+        <PublicHolidayComponent title="my title" subtitle="subtitle" exists />
+        </div>
+        {/*Country API Display End*/}
       </div>
   );
 }
+
 
 export default App;
