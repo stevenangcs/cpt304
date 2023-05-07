@@ -310,7 +310,7 @@ function PublicHolidayComponent(props) {
                 })}
             </select>
             {holidays.map((holiday, index) => {
-                return <h2 className="headliner" key={index}>{holiday.date} - {holiday.description}</h2>
+                return <p className="text" key={index}>{holiday.date} - {holiday.description}</p>
             })}
         </div>
     );
@@ -365,11 +365,11 @@ function CurrentWeatherComponent(props) {
     return (
         <div>
             <button onClick={getCoordinates}>Get Weather Data For Your Area</button>
-            <p>Current Weather Description: {weather.main}, {weather.description}</p>
-            <p>Current Tempature: {temperature.temp}°C</p>
-            <p>It feels like: {temperature.feels_like}°C</p>
-            <p>Minimum Temperature: {temperature.temp_min}°C</p>
-            <p>Maximum Temperature: {temperature.temp_max}°C</p>
+            <p className='text'>Current Weather Description: {weather.main}, {weather.description}</p>
+            <p className='text'>Current Tempature: {temperature.temp}°C</p>
+            <p className='text'>It feels like: {temperature.feels_like}°C</p>
+            <p className='text'>Minimum Temperature: {temperature.temp_min}°C</p>
+            <p className='text'>Maximum Temperature: {temperature.temp_max}°C</p>
         </div>
     );
 
@@ -435,7 +435,7 @@ function AccomodationComponent(props) {
 
     return (
         <div>
-            <form className='centre' onSubmit={(e) => submitDateForm(e)}>
+            <form className='text' onSubmit={(e) => submitDateForm(e)}>
                 <label htmlFor="arrival">Arrival Date:</label>
                 <input type="date" id="arrival" name="arrival" onChange={(e) => {
                     setArrivalDate(e.target.value);
@@ -466,28 +466,31 @@ function AccomodationComponent(props) {
 //Start of UI
 function App() {
   return (
-      <div>
+      <div className='background'>
         <div>
             <h1 className='title'>View Public Holiday, Weather, and Accomodation Details in your selected country!</h1>
         </div>
         {/*Current Weather API Begin*/}
         <div className='centre'>
-            <h2 className='centre'>Click Me To Find My Current Location and Details!</h2>
+            <h2 className='centre'>Click the button below to find out about the weather deatils around you.</h2>
             <CurrentWeatherComponent />
         </div>
+        <hr />
         {/*Current Weather API End*/}
         {/*Accomodation API Begin*/}
         <div>
-            <h2 className='centre'>Fill In Data To Find Accomodation Near You.</h2>
-            <h2 className='centre'>Make sure to pick an arrival date that is today or onwards.</h2>
-            <h2 className='centre'>Else, there will be no output for accomodation.</h2>
+            <h2 className='centre'>Fill in data to find accomodation near you.</h2>
+            <p className='text'>Make sure to pick an arrival date that is today or onwards.</p>
+            <p className='text'>Else, there will be no output for accomodation.</p>
             <AccomodationComponent />
         </div>
+        <hr />
         {/*Accomodation API End*/}
         {/*Country API Display Begin*/}
         <div>
-            <h2 className='centre'>Select Country to view list of public holidays</h2>
-        <PublicHolidayComponent title="my title" subtitle="subtitle" exists />
+            <h2 className='centre'>Select country to view list of public holidays</h2>
+            <p className='text'>Note: Not all country data are available yet.</p>
+        <PublicHolidayComponent /> <br />
         </div>
         {/*Country API Display End*/}
       </div>
