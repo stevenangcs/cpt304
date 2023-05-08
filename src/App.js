@@ -251,7 +251,7 @@ const COUNTRIES = [
         ]
 
 {/*Component to call Public Holiday API from Working-Days RapidAPI*/}
-function PublicHolidayComponent(props) {
+function PublicHolidayComponent() {
     const [country, setCountry] = useState("");
     const [holidays, setHolidays] = useState([]);
     const [pubHolidayError, setPubHolidayError] = useState({status:false, message: ""});
@@ -449,8 +449,6 @@ function AccomodationComponent(props) {
         )
     };
 
-    
-    
     {/*Display Form to ask for user input*/}
     {/*Notable data arearrival and departure dates*/}
     return (
